@@ -254,7 +254,7 @@ Ausführlichkeit	Beschreibung
 Delete Pods and Services
 kubectl -n namespace delete po,svc --all
 
-kubectl delete daemonsets,replicasets,services,deployments,pods,rc --all
+kubectl -n namespace elete daemonsets,replicasets,services,deployments,pods,rc --all
 
 for each in $(kubectl get ns -o jsonpath="{.items[*].metadata.name}" | grep -v kube-system);
 do
