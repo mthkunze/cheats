@@ -1,0 +1,31 @@
+git clone https://github.com/rancher/k3s.git
+
+cd k3s/contrib/ansible/
+vi hosts.ini
+
+vi roles/prereq/tasks/main.yml
+
+ADD:
+- name: Modprobe bridge-nf-call-iptables (just to be sure)
+  shell:
+    modprobe br_netfilter
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+
+ansible-playbook -i hosts.ini site.yml
+
+kubectl get nodes
+
+curl -sfL https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml > kubernetes-dashboard.yaml
+ls -l /var/lib/rancher/k3s/server/manifests
+cp kubernetes-dashboard.yaml /var/lib/rancher/k3s/server/manifests
+kubectl get pods --all-namespaces
+ssh -L8001:localhost:8001 192.1x.x.x
+kubectl apply -f dashboard-adminuser.yaml
+kubectl -n kube-system port-forward kubernetes-dashboard-5f7b999d65-8h97b 8001:8001
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+
+kubectl create ns jupyter
+vi jupyter.yml
+kubectl apply -f jupyter.yaml --namespace jupyter
+kubectl -n jupyter port-forward jupyter-notebook-78f6845fbf-h8nw6 --address 192.1x.x.x 8888
